@@ -1,0 +1,1237 @@
+<title>CAPI Không Rò</title>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --paper:#EBEFED; --surface:#F8FAF9; --surface-2:#E2E8E5;
+  --ink:#0F1E1B; --ink-soft:#4B5C57; --ink-faint:#7E8F8A;
+  --line:#C7D2CE; --line-soft:#D9E1DE;
+  --accent:#0D6B65; --accent-ink:#FFFFFF; --accent-soft:#D6E7E5;
+  --leak:#AC4526; --leak-soft:#F2DDD5;
+  --shadow:0 1px 0 rgba(15,30,27,.05), 0 12px 32px -18px rgba(15,30,27,.35);
+  --grid:rgba(15,30,27,.055);
+
+  --f-display:"Constantia","Cambria","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-body:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:"Consolas","SFMono-Regular","SF Mono","Roboto Mono",ui-monospace,monospace;
+
+  --s1:.5rem; --s2:.875rem; --s3:1.375rem; --s4:2.25rem; --s5:3.5rem; --s6:5.5rem;
+  --measure:64ch; --radius:3px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1513; --surface:#111F1C; --surface-2:#182A26;
+    --ink:#E6EDEA; --ink-soft:#9CADA8; --ink-faint:#6E817C;
+    --line:#22352F; --line-soft:#1B2C28;
+    --accent:#4CC4B4; --accent-ink:#04211E; --accent-soft:#12332F;
+    --leak:#E58057; --leak-soft:#2E1C15;
+    --shadow:0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+    --grid:rgba(230,237,234,.05);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1513; --surface:#111F1C; --surface-2:#182A26;
+  --ink:#E6EDEA; --ink-soft:#9CADA8; --ink-faint:#6E817C;
+  --line:#22352F; --line-soft:#1B2C28;
+  --accent:#4CC4B4; --accent-ink:#04211E; --accent-soft:#12332F;
+  --leak:#E58057; --leak-soft:#2E1C15;
+  --shadow:0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+  --grid:rgba(230,237,234,.05);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+img{max-width:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1140px; margin:0 auto; padding:0 clamp(1rem,4vw,2.5rem)}
+section{padding:var(--s6) 0; border-top:1px solid var(--line-soft)}
+section.first{border-top:0}
+.stack{display:flex; flex-direction:column}
+.gap-1{gap:var(--s1)} .gap-2{gap:var(--s2)} .gap-3{gap:var(--s3)} .gap-4{gap:var(--s4)} .gap-5{gap:var(--s5)}
+
+/* ============ TYPE ============ */
+h1,h2,h3{font-family:var(--f-display); font-weight:700; text-wrap:balance; margin:0; letter-spacing:-.015em}
+h1{font-size:clamp(2.1rem,1.2rem + 3.6vw,4rem); line-height:1.06}
+h2{font-size:clamp(1.65rem,1.1rem + 2vw,2.6rem); line-height:1.14}
+h3{font-size:1.18rem; line-height:1.3; letter-spacing:0}
+p{margin:0; max-width:var(--measure)}
+.lead{font-size:clamp(1.05rem,.98rem + .4vw,1.28rem); color:var(--ink-soft); line-height:1.55}
+.eyebrow{
+  font-family:var(--f-mono); font-size:.72rem; letter-spacing:.19em; text-transform:uppercase;
+  color:var(--accent); margin:0; display:flex; align-items:center; gap:.7rem;
+}
+.eyebrow::after{content:""; flex:1; height:1px; background:var(--line); max-width:220px}
+.muted{color:var(--ink-soft)}
+.tiny{font-size:.82rem; line-height:1.5; color:var(--ink-faint); max-width:78ch}
+.mono{font-family:var(--f-mono)}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+
+/* ============ HERO ============ */
+.hero{padding-top:var(--s5); padding-bottom:var(--s6)}
+.hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:var(--s5); align-items:start}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr; gap:var(--s4)}}
+.hero h1 em{font-style:normal; color:var(--leak)}
+.cta-row{display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s1)}
+.btn{
+  display:inline-flex; align-items:center; gap:.55rem; padding:.78rem 1.45rem;
+  font-family:var(--f-body); font-size:.95rem; font-weight:600; text-decoration:none;
+  border-radius:var(--radius); border:1px solid var(--accent); cursor:pointer;
+  background:var(--accent); color:var(--accent-ink);
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 10px 22px -12px rgba(13,107,101,.7)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent); color:var(--accent)}
+
+/* leak meter */
+.meter{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:var(--s3); box-shadow:var(--shadow);
+}
+.meter-head{display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom:.55rem}
+.meter-label{font-family:var(--f-mono); font-size:.74rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft)}
+.meter-val{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:.95rem; font-weight:700}
+.dots{display:grid; grid-template-columns:repeat(20,1fr); gap:3px}
+.dot{aspect-ratio:1; border-radius:1px; background:var(--accent); opacity:.92}
+.dot.lost{background:transparent; border:1px dashed var(--leak); opacity:.8}
+.meter-foot{margin-top:.7rem; font-size:.8rem; color:var(--ink-faint); font-family:var(--f-mono)}
+.meter + .meter{margin-top:var(--s2)}
+.legend{display:flex; gap:1.2rem; flex-wrap:wrap; margin-top:var(--s2)}
+.pipe-note{display:flex; gap:.5rem; align-items:center; font-family:var(--f-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft)}
+.swatch{width:10px; height:10px; border-radius:1px; display:inline-block}
+
+/* ============ STAT STRIP ============ */
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line-soft); border:1px solid var(--line-soft); border-radius:var(--radius); overflow:hidden}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface); padding:var(--s3) var(--s2)}
+.stat b{display:block; font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:1.5rem; font-weight:700; color:var(--accent); letter-spacing:-.02em}
+.stat span{display:block; font-size:.85rem; color:var(--ink-soft); margin-top:.25rem; line-height:1.4}
+
+/* ============ SYMPTOMS ============ */
+.symptoms{display:flex; flex-direction:column; gap:1px; background:var(--line-soft); border:1px solid var(--line-soft); border-radius:var(--radius); overflow:hidden}
+.symptom{display:grid; grid-template-columns:1fr 1.15fr; background:var(--surface)}
+@media(max-width:840px){.symptom{grid-template-columns:1fr}}
+.sym-l{padding:var(--s3); border-right:1px solid var(--line-soft); display:flex; gap:.75rem; align-items:flex-start}
+@media(max-width:840px){.sym-l{border-right:0; border-bottom:1px dashed var(--line-soft)}}
+.sym-r{padding:var(--s3); display:flex; gap:.75rem; align-items:flex-start}
+.sym-mark{font-family:var(--f-mono); font-size:1rem; line-height:1.5; flex:none; font-weight:700}
+.sym-l .sym-mark{color:var(--leak)}
+.sym-r .sym-mark{color:var(--accent)}
+.sym-quote{font-family:var(--f-display); font-size:1.06rem; font-weight:700; line-height:1.35; letter-spacing:-.01em}
+.sym-fix{font-size:.93rem; color:var(--ink-soft); line-height:1.5}
+.sym-fix b{color:var(--ink)}
+
+/* ============ CARDS ============ */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2)}
+@media(max-width:960px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.cards{grid-template-columns:1fr}}
+.card{
+  background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius);
+  padding:var(--s3); display:flex; flex-direction:column; gap:.6rem;
+  transition:border-color .18s ease, transform .18s ease;
+}
+.card:hover{border-color:var(--line); transform:translateY(-2px)}
+.card p{font-size:.93rem; color:var(--ink-soft); max-width:none}
+.tag{
+  align-self:flex-start; font-family:var(--f-mono); font-size:.67rem; letter-spacing:.13em;
+  text-transform:uppercase; padding:.22rem .5rem; border-radius:2px;
+  background:var(--leak-soft); color:var(--leak);
+}
+.tag.ok{background:var(--accent-soft); color:var(--accent)}
+
+/* ============ BENEFIT LIST ============ */
+.benefits{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line-soft); border:1px solid var(--line-soft); border-radius:var(--radius); overflow:hidden}
+@media(max-width:820px){.benefits{grid-template-columns:1fr}}
+.benefit:last-child:nth-child(odd){grid-column:1 / -1}
+.benefit{background:var(--surface); padding:var(--s3); display:flex; gap:var(--s2); align-items:flex-start}
+.benefit .k{font-family:var(--f-mono); font-size:.8rem; color:var(--accent); padding-top:.28rem; min-width:1.6rem; font-variant-numeric:tabular-nums}
+.benefit h3{margin-bottom:.3rem}
+.benefit p{font-size:.93rem; color:var(--ink-soft); max-width:none}
+
+/* ============ FLOW DIAGRAM ============ */
+.flow{display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:var(--s2)}
+.node{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:var(--s2) var(--s2) var(--s3);
+}
+.node .n{font-family:var(--f-mono); font-size:.67rem; letter-spacing:.14em; color:var(--ink-faint); text-transform:uppercase}
+.node h3{font-size:1rem; margin:.35rem 0 .3rem}
+.node p{font-size:.85rem; color:var(--ink-soft); max-width:none; line-height:1.45}
+.node.hi{border-color:var(--accent); background:var(--accent-soft)}
+.node.hi .n{color:var(--accent)}
+
+/* ============ TIMELINE LANES ============ */
+.lanes{display:flex; flex-direction:column}
+.lane{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:var(--s3); display:grid; grid-template-columns:1.25fr .85fr; gap:var(--s3); align-items:center;
+}
+@media(max-width:880px){.lane{grid-template-columns:1fr; gap:var(--s2)}}
+.lane-head{display:flex; flex-direction:column; gap:.15rem; margin-bottom:.8rem}
+.lane-t{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent)}
+.lane-when{font-size:.85rem; color:var(--ink-faint)}
+.lane-steps{display:flex; flex-wrap:wrap; gap:.45rem; align-items:center}
+.lstep{
+  font-size:.86rem; padding:.38rem .7rem; border:1px solid var(--line-soft);
+  border-radius:99px; background:var(--paper); color:var(--ink-soft); line-height:1.3;
+}
+.lstep.key{border-color:var(--accent); color:var(--ink); font-weight:600}
+.lsep{font-family:var(--f-mono); color:var(--ink-faint); font-size:.9rem}
+.lane-out{border:1px solid; border-radius:var(--radius); padding:var(--s2) var(--s3); display:flex; flex-direction:column; gap:.25rem}
+.lane-out.leak{background:var(--leak-soft); border-color:var(--leak)}
+.lane-out.ok{background:var(--accent-soft); border-color:var(--accent)}
+.lo-k{font-family:var(--f-mono); font-size:.67rem; letter-spacing:.14em; text-transform:uppercase}
+.lane-out.leak .lo-k{color:var(--leak)}
+.lane-out.ok .lo-k{color:var(--accent)}
+.lo-v{font-family:var(--f-display); font-size:1.3rem; font-weight:700; letter-spacing:-.01em; line-height:1.15}
+.lo-note{font-size:.85rem; color:var(--ink-soft); line-height:1.4}
+.lane-gap{
+  display:flex; align-items:center; gap:.8rem; padding:.6rem 0 .6rem var(--s3);
+  font-family:var(--f-mono); font-size:.72rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint);
+}
+.lane-gap::before{content:""; width:2px; align-self:stretch; background:var(--line); margin-left:.5rem}
+
+/* ============ TABLE ============ */
+.table-scroll{overflow-x:auto; border:1px solid var(--line-soft); border-radius:var(--radius); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:760px; font-size:.92rem}
+th,td{text-align:left; padding:.85rem 1rem; border-bottom:1px solid var(--line-soft); vertical-align:top}
+thead th{
+  font-family:var(--f-mono); font-size:.71rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-soft); background:var(--surface-2); border-bottom:1px solid var(--line);
+}
+thead th.win{color:var(--accent)}
+tbody tr:last-child td{border-bottom:0}
+td.crit{color:var(--leak)}
+td.good{color:var(--accent); font-weight:600}
+tbody th{font-weight:600; font-size:.92rem; width:23%}
+
+/* ============ TOOL PANELS ============ */
+.tool{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.tool-head{
+  padding:var(--s2) var(--s3); border-bottom:1px solid var(--line-soft); background:var(--surface-2);
+  display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+}
+.tool-head .t{font-family:var(--f-mono); font-size:.73rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-soft)}
+.tool-body{display:grid; grid-template-columns:1fr 1fr}
+@media(max-width:860px){.tool-body{grid-template-columns:1fr}}
+.tool-in{padding:var(--s3); display:flex; flex-direction:column; gap:var(--s2); border-right:1px solid var(--line-soft)}
+@media(max-width:860px){.tool-in{border-right:0; border-bottom:1px solid var(--line-soft)}}
+.tool-out{padding:var(--s3); display:flex; flex-direction:column; gap:var(--s2); background:var(--paper)}
+.field{display:flex; flex-direction:column; gap:.35rem}
+.field label{font-size:.85rem; font-weight:600; display:flex; justify-content:space-between; gap:1rem; align-items:baseline}
+.field label span{font-family:var(--f-mono); font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700}
+input[type="number"]{
+  font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:1rem;
+  padding:.6rem .7rem; border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--paper); color:var(--ink); width:100%;
+}
+input[type="number"]:focus{border-color:var(--accent)}
+input[type="range"]{width:100%; accent-color:var(--accent); height:22px}
+.out-row{display:flex; justify-content:space-between; align-items:baseline; gap:1rem; padding:.6rem 0; border-bottom:1px dashed var(--line-soft)}
+.out-row.last{border-bottom:0}
+.out-row .lbl{font-size:.89rem; color:var(--ink-soft)}
+.out-row .v{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-weight:700; font-size:1rem; white-space:nowrap}
+.v.leak{color:var(--leak)} .v.ok{color:var(--accent)}
+.headline-out{
+  background:var(--accent-soft); border:1px solid var(--accent); border-radius:var(--radius);
+  padding:var(--s2) var(--s3);
+}
+.headline-out .k{font-family:var(--f-mono); font-size:.69rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent)}
+.headline-out .big{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:clamp(1.4rem,1rem + 2vw,2rem); font-weight:700; letter-spacing:-.02em; line-height:1.15; margin-top:.2rem}
+
+/* EMQ */
+.checks{display:grid; grid-template-columns:1fr 1fr; gap:.2rem .9rem}
+@media(max-width:560px){.checks{grid-template-columns:1fr}}
+.chk{display:flex; gap:.55rem; align-items:flex-start; font-size:.88rem; cursor:pointer; padding:.28rem 0; line-height:1.35}
+.chk input{margin-top:.3rem; accent-color:var(--accent); width:15px; height:15px; flex:none}
+.chk .w{font-family:var(--f-mono); font-size:.71rem; color:var(--ink-faint); margin-left:auto; padding-left:.5rem}
+.gauge{height:12px; background:var(--surface-2); border-radius:99px; overflow:hidden; border:1px solid var(--line-soft)}
+.gauge i{display:block; height:100%; background:var(--accent); width:0; transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.band{font-family:var(--f-mono); font-size:.77rem; letter-spacing:.1em; text-transform:uppercase}
+
+/* ============ PROCESS ============ */
+.steps{display:flex; flex-direction:column; border-left:2px solid var(--line); margin-left:.6rem}
+.step{padding:0 0 var(--s3) var(--s3); position:relative}
+.step.last{padding-bottom:0}
+.step::before{
+  content:""; position:absolute; left:-7px; top:.55rem; width:12px; height:12px;
+  background:var(--paper); border:2px solid var(--accent); border-radius:99px;
+}
+.step .meta{font-family:var(--f-mono); font-size:.71rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint)}
+.step h3{margin:.15rem 0 .3rem}
+.step p{font-size:.93rem; color:var(--ink-soft)}
+
+/* ============ PRICING ============ */
+.plans{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); align-items:start}
+@media(max-width:900px){.plans{grid-template-columns:1fr}}
+.plan{background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:var(--s3); display:flex; flex-direction:column; gap:var(--s2)}
+.plan.feature{border-color:var(--accent); box-shadow:var(--shadow); position:relative}
+.plan.feature::before{
+  content:"PHỔ BIẾN NHẤT"; position:absolute; top:0; right:var(--s3); transform:translateY(-50%);
+  background:var(--accent); color:var(--accent-ink); font-family:var(--f-mono); font-size:.62rem;
+  letter-spacing:.14em; padding:.25rem .55rem; border-radius:2px;
+}
+.plan .pname{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft)}
+.plan .price{font-family:var(--f-display); font-size:1.85rem; font-weight:700; letter-spacing:-.02em; line-height:1}
+.plan .price small{font-family:var(--f-mono); font-size:.71rem; font-weight:400; color:var(--ink-faint); letter-spacing:.05em; display:block; margin-top:.35rem}
+.plan ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.5rem; font-size:.9rem; color:var(--ink-soft)}
+.plan li{position:relative; padding-left:1.15rem; line-height:1.45}
+.plan li::before{content:"—"; color:var(--accent); font-family:var(--f-mono); position:absolute; left:0; top:0}
+
+.pricing-grid{display:grid; grid-template-columns:.92fr 1.08fr; gap:var(--s3); align-items:start}
+@media(max-width:920px){.pricing-grid{grid-template-columns:1fr}}
+.plan.lead-card{border-color:var(--accent); box-shadow:var(--shadow)}
+.tiers{overflow-x:auto}
+.tiers table{min-width:0}
+.tiers td{font-size:.95rem}
+.tiers tbody tr{transition:background .2s ease}
+.tiers tbody tr.hit{background:var(--accent-soft)}
+.tiers tbody tr.hit td{font-weight:700}
+.tier-est{padding:var(--s3); border-top:1px solid var(--line-soft); background:var(--paper); display:flex; flex-direction:column; gap:var(--s2)}
+.est-out{display:flex; flex-direction:column}
+.rules{display:flex; flex-direction:column; gap:var(--s2)}
+.rule{display:flex; flex-direction:column; gap:.15rem; border-left:2px solid var(--accent); padding-left:var(--s2)}
+.rule b{font-size:.92rem}
+.rule span{font-size:.88rem; color:var(--ink-soft); line-height:1.45}
+
+/* ============ FAQ ============ */
+details{border-bottom:1px solid var(--line-soft); padding:var(--s2) 0}
+details summary{
+  cursor:pointer; font-weight:600; font-size:1rem; list-style:none;
+  display:flex; justify-content:space-between; gap:1rem; align-items:center;
+}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+"; font-family:var(--f-mono); color:var(--accent); font-size:1.15rem; flex:none}
+details[open] summary::after{content:"–"}
+details p{margin-top:.6rem; font-size:.93rem; color:var(--ink-soft)}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line); padding:var(--s5) 0 var(--s4)}
+.foot-cta{display:flex; justify-content:space-between; align-items:flex-end; gap:var(--s3); flex-wrap:wrap}
+
+/* reveal */
+.rv{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1)}
+.rv.on{opacity:1; transform:none}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  .rv{opacity:1; transform:none}
+}
+</style>
+
+<!-- ==================== HERO ==================== -->
+<section class="first hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="stack gap-3">
+        <p class="eyebrow">Dịch vụ đo lường phía máy chủ</p>
+        <h1>Bạn đang trả tiền cho những chuyển đổi mà Meta <em>không bao giờ nhìn thấy</em>.</h1>
+        <p class="lead">Pixel chạy trong trình duyệt người dùng — nơi có trình chặn quảng cáo, Safari ITP, iOS ATT và những cú thoát trang sớm. Một phần sự kiện của bạn chết trước khi tới Meta, và thuật toán học trên dữ liệu thiếu.</p>
+        <p class="lead">Chúng tôi dựng đường ống <b>n8n</b> gửi sự kiện thẳng từ máy chủ lên <b>Conversions API</b>: kín, khớp danh tính cao, chống trùng, và ghi log từng sự kiện để bạn đối soát với đơn thật.</p>
+        <div class="cta-row">
+          <a class="btn" href="#tinh">Đo thất thoát của bạn</a>
+          <a class="btn ghost" href="#goi">Xem gói dịch vụ</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="meter">
+          <div class="meter-head">
+            <span class="meter-label">Pixel trình duyệt</span>
+            <span class="meter-val" style="color:var(--leak)" id="m-pixel">72 / 100 sự kiện</span>
+          </div>
+          <div class="dots" id="dots-pixel"></div>
+          <p class="meter-foot">28 sự kiện không bao giờ tới Meta</p>
+        </div>
+
+        <div class="meter">
+          <div class="meter-head">
+            <span class="meter-label">CAPI qua n8n</span>
+            <span class="meter-val" style="color:var(--accent)" id="m-capi">100 / 100 sự kiện</span>
+          </div>
+          <div class="dots" id="dots-capi"></div>
+          <p class="meter-foot">Gửi từ máy chủ — không phụ thuộc trình duyệt</p>
+        </div>
+
+        <div class="legend">
+          <span class="pipe-note"><i class="swatch" style="background:var(--accent)"></i> Meta nhận được</span>
+          <span class="pipe-note"><i class="swatch" style="border:1px dashed var(--leak)"></i> Rơi mất</span>
+        </div>
+        <p class="tiny" style="margin-top:.8rem">Minh hoạ theo mức thất thoát 28% — dải phổ biến của ngành là 15–40% tuỳ tỷ trọng iOS, tốc độ trang và ngành hàng. Con số thật của bạn đo được sau 7 ngày chạy song song.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STATS ==================== -->
+<section>
+  <div class="wrap stack gap-3">
+    <div class="stats rv">
+      <div class="stat"><b>+15–40%</b><span>sự kiện được ghi nhận thêm sau khi bịt rò</span></div>
+      <div class="stat"><b>4 → 8</b><span>Điểm khớp sự kiện (EMQ) điển hình sau chuẩn hoá dữ liệu</span></div>
+      <div class="stat"><b>1 → 4</b><span>Một luồng n8n bắn đồng thời Meta, TikTok, GA4, Google Ads</span></div>
+      <div class="stat"><b>100%</b><span>sự kiện được ghi log để đối soát với đơn thật</span></div>
+    </div>
+    <p class="tiny">Đây là dải kết quả điển hình khi chuyển từ pixel-only sang CAPI có chuẩn hoá danh tính, không phải cam kết. Kết quả phụ thuộc dữ liệu bạn đang có và chất lượng landing.</p>
+  </div>
+</section>
+
+<!-- ==================== SYMPTOMS ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Triệu chứng</p>
+      <h2>Nghe có quen không?</h2>
+      <p class="lead">Năm câu than quen thuộc của người chạy ads COD. Cả năm cùng một gốc bệnh: Meta đang học từ dữ liệu sai. Sửa nguồn dữ liệu thì cả năm cùng chuyển.</p>
+    </div>
+
+    <div class="symptoms rv">
+      <div class="symptom">
+        <div class="sym-l">
+          <span class="sym-mark">✕</span>
+          <span class="sym-quote">"Facebook phân phối linh tinh, ra toàn khách không mua"</span>
+        </div>
+        <div class="sym-r">
+          <span class="sym-mark">→</span>
+          <span class="sym-fix">Meta đang tối ưu đúng thứ bạn dạy nó. Nó chỉ nhận được sự kiện <b>đăng ký</b> nên đi tìm thêm người điền form. Gửi sự kiện <b>mua hàng</b> từ POS là nó đổi mục tiêu sang người trả tiền.</span>
+        </div>
+      </div>
+
+      <div class="symptom">
+        <div class="sym-l">
+          <span class="sym-mark">✕</span>
+          <span class="sym-quote">"Dựng Lookalike mãi không ra tệp nào ngon"</span>
+        </div>
+        <div class="sym-r">
+          <span class="sym-mark">→</span>
+          <span class="sym-fix">Tệp nguồn toàn người điền form thì nhân bản ra cũng chỉ là người điền form. Có sự kiện mua thật, bạn dựng LAL từ <b>người đã trả tiền</b>, và dựng được cả LAL theo giá trị đơn.</span>
+        </div>
+      </div>
+
+      <div class="symptom">
+        <div class="sym-l">
+          <span class="sym-mark">✕</span>
+          <span class="sym-quote">"Không tách được Lookalike riêng cho từng sản phẩm"</span>
+        </div>
+        <div class="sym-r">
+          <span class="sym-mark">→</span>
+          <span class="sym-fix">Sự kiện gửi kèm mã sản phẩm và mã đơn, nên mỗi mặt hàng có tệp người mua riêng. <b>LAL riêng cho từng sản phẩm</b> thay vì một tệp chung chạy cho cả shop.</span>
+        </div>
+      </div>
+
+      <div class="symptom">
+        <div class="sym-l">
+          <span class="sym-mark">✕</span>
+          <span class="sym-quote">"Không biết chiến dịch nào ra đơn thật, chiến dịch nào chỉ ra lead"</span>
+        </div>
+        <div class="sym-r">
+          <span class="sym-mark">→</span>
+          <span class="sym-fix">Sự kiện mang theo mã chiến dịch và mã nhân sự từ landing, ghi thẳng vào log. Đối soát được tới <b>từng camp, từng landing, từng người chạy</b>.</span>
+        </div>
+      </div>
+
+      <div class="symptom">
+        <div class="sym-l">
+          <span class="sym-mark">✕</span>
+          <span class="sym-quote">"Số trên Ads Manager không khớp đơn trong hệ thống"</span>
+        </div>
+        <div class="sym-r">
+          <span class="sym-mark">→</span>
+          <span class="sym-fix">Vì hai bên đếm hai thứ khác nhau và không có gì để đối chiếu. Log ghi từng sự kiện kèm mã đơn, nên chỗ lệch <b>nhìn ra được</b> chứ không phải đoán.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROBLEM ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Sự kiện rơi ở đâu</p>
+      <h2>Sáu chỗ rò trên đường ống hiện tại</h2>
+      <p class="lead">Không phải pixel cài sai. Là vì pixel buộc phải chạy trong trình duyệt của khách — môi trường bạn không kiểm soát.</p>
+    </div>
+
+    <div class="cards rv">
+      <div class="card">
+        <span class="tag">Trình duyệt</span>
+        <h3>Safari ITP &amp; iOS ATT</h3>
+        <p>Cookie <span class="mono">_fbp</span> bị cắt còn 7 ngày, chỉ 24 giờ nếu link có tham số. Khách xem hôm nay, mua tuần sau — Meta không còn nhận ra đó là cùng một người.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Trình duyệt</span>
+        <h3>Trình chặn quảng cáo</h3>
+        <p>uBlock, Brave, DNS chặn quảng cáo đều chặn <span class="mono">connect.facebook.net</span>. Pixel không tải được thì không có sự kiện nào cả — kể cả khách đã mua.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Trình duyệt</span>
+        <h3>Thoát trang trước khi pixel bắn</h3>
+        <p>Mạng 3G, trang nặng, khách bấm gửi form rồi đóng tab ngay. Sự kiện chưa kịp rời máy khách đã mất. Càng nhiều traffic mobile, càng rò nhiều.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Ngoài trình duyệt</span>
+        <h3>Sự kiện xảy ra ở hậu đài</h3>
+        <p>Telesale xác nhận đơn, COD giao thành công, khách huỷ, hoàn hàng — pixel mù hoàn toàn. Đây thường là những sự kiện đáng tiền nhất của mô hình COD.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Chất lượng</span>
+        <h3>Thiếu khoá khớp danh tính</h3>
+        <p>Trình duyệt chỉ có cookie. Máy chủ của bạn có số điện thoại, email, tên, tỉnh/thành, mã đơn — hash SHA-256 rồi gửi, Meta khớp được nhiều người hơn hẳn.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Vận hành</span>
+        <h3>Không có bằng chứng để truy</h3>
+        <p>Pixel không để lại log. Khi số trong Ads Manager lệch với đơn thật, bạn không có gì để đối chiếu ngoài việc đoán. Sai âm thầm là loại sai đắt nhất.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Kiến trúc</p>
+      <h2>Đường ống chúng tôi dựng cho bạn</h2>
+      <p class="lead">Một luồng n8n duy nhất, chạy trên máy chủ của bạn, nhận sự kiện từ mọi nguồn và phân phối đi mọi nền tảng quảng cáo.</p>
+    </div>
+
+    <div class="flow rv">
+      <div class="node">
+        <span class="n">Nguồn</span>
+        <h3>Landing &amp; POS</h3>
+        <p>Landing gửi kèm <span class="mono">fbc</span>, <span class="mono">fbp</span>, IP, user-agent. POS/CRM gửi trạng thái đơn: xác nhận, giao thành công, hoàn.</p>
+      </div>
+      <div class="node">
+        <span class="n">Cổng vào</span>
+        <h3>Webhook n8n</h3>
+        <p>Một điểm nhận duy nhất, có khoá bảo vệ. Sai định dạng thì trả lỗi rõ ràng chứ không nuốt im lặng.</p>
+      </div>
+      <div class="node hi">
+        <span class="n">Xử lý</span>
+        <h3>Chuẩn hoá &amp; hash</h3>
+        <p>Số điện thoại về E.164, email về chữ thường, bỏ dấu tên, rồi hash SHA-256. Dữ liệu gốc không rời máy chủ bạn.</p>
+      </div>
+      <div class="node hi">
+        <span class="n">Xử lý</span>
+        <h3>Chống trùng</h3>
+        <p><span class="mono">event_id</span> sinh từ khoá ổn định (ví dụ số điện thoại + loại sự kiện), có cửa sổ chặn lặp. Không đếm đôi.</p>
+      </div>
+      <div class="node">
+        <span class="n">Đầu ra</span>
+        <h3>Phân phối đa nền tảng</h3>
+        <p>Meta CAPI, TikTok Events API, GA4 Measurement Protocol, Google Ads Enhanced Conversions — cùng một nguồn sự kiện.</p>
+      </div>
+      <div class="node">
+        <span class="n">Đối soát</span>
+        <h3>Log &amp; cảnh báo</h3>
+        <p>Mỗi sự kiện ghi một dòng vào Google Sheet. Luồng đứt hoặc rớt bất thường thì bot Telegram báo ngay, không đợi cuối tháng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BENEFITS ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Lợi ích</p>
+      <h2>Bạn được gì khi bỏ pixel-only</h2>
+      <p class="lead">Mười một thứ thay đổi ngay trong tháng đầu — xếp theo mức tác động tới tiền quảng cáo.</p>
+    </div>
+
+    <div class="benefits rv">
+      <div class="benefit">
+        <span class="k">01</span>
+        <div>
+          <h3>Thu hồi sự kiện đã mất</h3>
+          <p>Những chuyển đổi bị adblock, ITP hay thoát trang nuốt mất nay vẫn tới Meta. Thuật toán học trên tập dữ liệu đầy đủ hơn, tìm đúng tệp khách hơn.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">02</span>
+        <div>
+          <h3>Đăng ký trên landing không phải là đơn hàng</h3>
+          <p>Khách bấm nút đặt hàng trên LadiPage thì Meta chỉ nhận được sự kiện <b>hoàn tất đăng ký</b> — nó không biết người đó có thành đơn hay không. Chúng tôi bắn sự kiện <b>mua hàng</b> vào đúng lúc telesale chốt đơn trên POS, kèm mã đơn thật. Từ đó thuật toán đi tìm người mua, chứ không đi tìm người điền form.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">03</span>
+        <div>
+          <h3>Đúng số tiền của từng đơn</h3>
+          <p>Khách đổi combo, mua thêm khi telesale gọi lại — giá trị thật khác giá in trên landing. Sự kiện mua hàng lấy đúng số tiền chốt trên POS, nên Meta tối ưu theo doanh thu chứ không theo số lượt đơn.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">04</span>
+        <div>
+          <h3>Đơn bom hàng không dạy nhầm thuật toán</h3>
+          <p>Với COD, bạn chọn mốc bắn sự kiện: lúc chốt đơn, hay lúc giao thành công. Đơn huỷ và đơn bom không lọt vào tín hiệu tối ưu, nên Meta thôi đi tìm thêm những người sẽ không nhận hàng.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">05</span>
+        <div>
+          <h3>Lookalike dựng từ người mua thật</h3>
+          <p>Tệp tương tự lâu nay xây trên sự kiện đăng ký, nên Meta nhân bản ra thêm người điền form. Khi Meta nhận được sự kiện mua hàng từ POS, bạn dựng được tệp tương tự từ <b>người đã trả tiền</b> — và dựng được cả tệp theo giá trị, tức nhắm vào nhóm giống những khách chi nhiều nhất, không phải khách mua một lần rồi thôi.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">06</span>
+        <div>
+          <h3>Điểm khớp sự kiện cao hơn hẳn</h3>
+          <p>Gửi đủ email, số điện thoại, tên, tỉnh/thành, mã khách, <span class="mono">fbc</span>/<span class="mono">fbp</span>, IP và user-agent. EMQ 4–5 lên 7–9 là mức thường thấy, tức Meta nhận diện được nhiều người hơn.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">07</span>
+        <div>
+          <h3>Không đếm đôi</h3>
+          <p><span class="mono">event_id</span> đặt đúng cách để Meta gộp bản trình duyệt và bản máy chủ thành một. Đây là chỗ đa số bên tự làm bị sai và báo cáo phồng lên.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">08</span>
+        <div>
+          <h3>Một luồng, nhiều nền tảng</h3>
+          <p>Đã chuẩn hoá sự kiện một lần thì bắn sang TikTok, GA4, Google Ads chỉ là thêm một nhánh. Không phải cài lại từ đầu cho từng kênh.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">09</span>
+        <div>
+          <h3>Đối soát được từng sự kiện</h3>
+          <p>Sheet log cho phép so số Ads Manager với đơn thật theo ngày, theo chiến dịch, theo nhân sự. Lệch chỗ nào thấy chỗ đó.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">10</span>
+        <div>
+          <h3>Gửi lại được khi lỗi</h3>
+          <p>Meta timeout hay token hết hạn thì n8n giữ lại và thử lại, chứ không mất trắng như pixel. Có hàng đợi, có nhật ký lỗi.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">11</span>
+        <div>
+          <h3>Không bị khoá chân</h3>
+          <p>Không tính phí theo lượt sự kiện như các dịch vụ server-side đóng gói. Luồng vẫn là tài sản của bạn — muốn tách sang máy chủ riêng lúc nào cũng được, chúng tôi bàn giao nguyên trạng, không giữ lại gì.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TIMELINE ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Sơ đồ</p>
+      <h2>Từ nút "Đặt hàng" tới lúc thành tiền</h2>
+      <p class="lead">Cùng một khách, hai mốc thời gian khác nhau. Pixel chỉ nhìn thấy mốc đầu — và đó chưa phải là đơn hàng.</p>
+    </div>
+
+    <div class="lanes rv">
+      <div class="lane">
+        <div>
+          <div class="lane-head">
+            <span class="lane-t">Mốc 1 · trên landing</span>
+            <span class="lane-when">Ngay lúc khách bấm nút</span>
+          </div>
+          <div class="lane-steps">
+            <span class="lstep">Thấy quảng cáo</span>
+            <span class="lsep">→</span>
+            <span class="lstep">Vào LadiPage</span>
+            <span class="lsep">→</span>
+            <span class="lstep">Điền tên, số điện thoại</span>
+            <span class="lsep">→</span>
+            <span class="lstep key">Bấm "Đặt hàng"</span>
+          </div>
+        </div>
+        <div class="lane-out leak">
+          <span class="lo-k">Meta chỉ nhận được</span>
+          <span class="lo-v">Hoàn tất đăng ký</span>
+          <span class="lo-note">Biết có người điền form. Không biết có thành đơn, cũng không biết bao nhiêu tiền.</span>
+        </div>
+      </div>
+
+      <div class="lane-gap">Vài giờ đến vài ngày sau</div>
+
+      <div class="lane">
+        <div>
+          <div class="lane-head">
+            <span class="lane-t">Mốc 2 · trên POS</span>
+            <span class="lane-when">Sau khi telesale gọi và chốt</span>
+          </div>
+          <div class="lane-steps">
+            <span class="lstep">Telesale gọi lại</span>
+            <span class="lsep">→</span>
+            <span class="lstep key">Chốt đơn trên POS</span>
+            <span class="lsep">→</span>
+            <span class="lstep key">Giao thành công</span>
+          </div>
+        </div>
+        <div class="lane-out ok">
+          <span class="lo-k">n8n gửi lên Meta</span>
+          <span class="lo-v">Mua hàng</span>
+          <span class="lo-note">Kèm số tiền thật đã chốt và mã đơn. Với COD, bạn chọn bắn lúc chốt đơn hay lúc giao thành công.</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="tiny">Đây là khác biệt lớn nhất giữa pixel và CAPI với mô hình gọi điện chốt đơn: pixel dừng lại ở mốc 1 nên Meta đi tìm thêm người <b>điền form</b>; có mốc 2 thì Meta đi tìm người <b>trả tiền</b>.</p>
+  </div>
+</section>
+
+<!-- ==================== COMPARE ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">So sánh</p>
+      <h2>Ba cách đo lường, đặt cạnh nhau</h2>
+    </div>
+    <div class="table-scroll rv">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tiêu chí</th>
+            <th scope="col">Pixel trình duyệt</th>
+            <th scope="col">GTM server-side (Stape…)</th>
+            <th scope="col" class="win">CAPI qua n8n</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Sự kiện bị adblock chặn</th>
+            <td class="crit">Mất</td>
+            <td>Cứu được phần lớn</td>
+            <td class="good">Cứu được phần lớn</td>
+          </tr>
+          <tr>
+            <th scope="row">Sự kiện hậu đài (xác nhận, giao COD)</th>
+            <td class="crit">Không có</td>
+            <td>Phải tự nối thêm</td>
+            <td class="good">Có sẵn trong luồng</td>
+          </tr>
+          <tr>
+            <th scope="row">Khoá khớp danh tính</th>
+            <td class="crit">Chỉ cookie</td>
+            <td>Tuỳ dữ liệu đẩy vào</td>
+            <td class="good">Toàn bộ hồ sơ khách đã hash</td>
+          </tr>
+          <tr>
+            <th scope="row">Chống trùng</th>
+            <td>Không kiểm soát</td>
+            <td>Có, cấu hình trong container</td>
+            <td class="good">Có, kèm cửa sổ chặn lặp riêng</td>
+          </tr>
+          <tr>
+            <th scope="row">Log để đối soát</th>
+            <td class="crit">Không</td>
+            <td>Phải mua thêm/tự dựng</td>
+            <td class="good">Google Sheet, mọi sự kiện</td>
+          </tr>
+          <tr>
+            <th scope="row">Đa nền tảng</th>
+            <td>Cài riêng từng mã</td>
+            <td>Cần tag riêng từng kênh</td>
+            <td class="good">Thêm một nhánh trong cùng luồng</td>
+          </tr>
+          <tr>
+            <th scope="row">Chi phí vận hành</th>
+            <td>Miễn phí</td>
+            <td>Trả theo lượt sự kiện</td>
+            <td class="good">VPS cố định, không theo lượt</td>
+          </tr>
+          <tr>
+            <th scope="row">Quyền sở hữu</th>
+            <td>—</td>
+            <td>Phụ thuộc nhà cung cấp</td>
+            <td class="good">Tách sang máy chủ riêng bất cứ lúc nào</td>
+          </tr>
+          <tr>
+            <th scope="row">Thời gian triển khai</th>
+            <td>Vài phút</td>
+            <td>1–2 tuần</td>
+            <td class="good">5–8 ngày làm việc</td>
+          </tr>
+          <tr>
+            <th scope="row">Ai lo vận hành sau này</th>
+            <td>Đội bạn tự xoay</td>
+            <td>Đội bạn tự xoay, hoặc thuê thêm</td>
+            <td class="good">Chúng tôi lo trọn, đã tính trong phí duy trì</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tiny">GTM server-side là giải pháp tốt và chúng tôi không phủ nhận. Khác biệt chính là ở quyền sở hữu, chi phí theo lượt sự kiện, và mức độ dễ nối vào hệ thống đơn hàng có sẵn của bạn.</p>
+  </div>
+</section>
+
+<!-- ==================== TOOL 1: CALCULATOR ==================== -->
+<section id="tinh">
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Công cụ 01</p>
+      <h2>Máy tính thất thoát sự kiện</h2>
+      <p class="lead">Điền số tháng gần nhất. Công cụ ước tính lượng chuyển đổi Meta chưa từng nhìn thấy, và giá mỗi chuyển đổi thật của bạn đang là bao nhiêu.</p>
+    </div>
+
+    <div class="tool rv">
+      <div class="tool-head">
+        <span class="t">Nhập số liệu tháng gần nhất</span>
+        <span class="t">Đơn vị: VNĐ</span>
+      </div>
+      <div class="tool-body">
+        <div class="tool-in">
+          <div class="field">
+            <label for="i-spend">Chi tiêu quảng cáo / tháng</label>
+            <input type="number" id="i-spend" value="200000000" min="0" step="1000000">
+          </div>
+          <div class="field">
+            <label for="i-leads">Số chuyển đổi pixel ghi nhận / tháng</label>
+            <input type="number" id="i-leads" value="1000" min="1" step="10">
+          </div>
+          <div class="field">
+            <label for="i-close">Tỷ lệ chốt đơn từ lead <span id="v-close">35%</span></label>
+            <input type="range" id="i-close" value="35" min="1" max="100" step="1">
+          </div>
+          <div class="field">
+            <label for="i-aov">Giá trị trung bình mỗi đơn</label>
+            <input type="number" id="i-aov" value="450000" min="0" step="10000">
+          </div>
+          <div class="field">
+            <label for="i-loss">Mức thất thoát ước tính <span id="v-loss">25%</span></label>
+            <input type="range" id="i-loss" value="25" min="5" max="45" step="1">
+          </div>
+          <p class="tiny">Chưa biết mức thất thoát của mình? Để 25% — mức giữa dải phổ biến. Traffic iOS cao, trang nặng, hoặc tệp khách trẻ thì kéo lên 30–40%.</p>
+        </div>
+
+        <div class="tool-out">
+          <div class="headline-out">
+            <div class="k">Chuyển đổi Meta chưa nhìn thấy / tháng</div>
+            <div class="big" id="o-missed">333 sự kiện</div>
+          </div>
+          <div class="out-row">
+            <span class="lbl">Chuyển đổi thật ước tính</span>
+            <span class="v" id="o-real">1.333</span>
+          </div>
+          <div class="out-row">
+            <span class="lbl">Giá mỗi chuyển đổi Meta đang báo</span>
+            <span class="v leak" id="o-cpa-shown">200.000đ</span>
+          </div>
+          <div class="out-row">
+            <span class="lbl">Giá mỗi chuyển đổi thật của bạn</span>
+            <span class="v ok" id="o-cpa-real">150.000đ</span>
+          </div>
+          <div class="out-row">
+            <span class="lbl">Doanh thu đang chạy ngoài sổ Meta</span>
+            <span class="v leak" id="o-rev">52.500.000đ</span>
+          </div>
+          <div class="out-row last">
+            <span class="lbl">Ngân sách/năm gắn với sự kiện không được ghi nhận</span>
+            <span class="v leak" id="o-year">600.000.000đ</span>
+          </div>
+          <p class="tiny">Cách tính: chuyển đổi thật = số pixel ghi nhận ÷ (1 − mức thất thoát). Doanh thu ngoài sổ = số chuyển đổi thiếu × tỷ lệ chốt × giá trị đơn. Đây là <b>ước tính để định lượng vấn đề</b>, không phải cam kết doanh thu tăng thêm — tiền đó bạn đã kiếm được rồi, chỉ là Meta chưa biết để tối ưu tiếp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TOOL 2: EMQ ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Công cụ 02</p>
+      <h2>Chấm điểm khớp sự kiện</h2>
+      <p class="lead">Tích những trường bạn đang thực sự gửi lên Meta. Điểm càng cao, Meta càng khớp được nhiều người với sự kiện của bạn.</p>
+    </div>
+
+    <div class="tool rv">
+      <div class="tool-head">
+        <span class="t">Trường dữ liệu đang gửi</span>
+        <span class="t">Trọng số theo mức ảnh hưởng</span>
+      </div>
+      <div class="tool-body">
+        <div class="tool-in">
+          <div class="checks" id="emq-list"></div>
+          <p class="tiny">Mọi trường danh tính đều được hash SHA-256 trước khi rời máy chủ. Meta chỉ nhận chuỗi băm, không nhận số điện thoại hay email dạng gốc.</p>
+        </div>
+        <div class="tool-out">
+          <div class="headline-out">
+            <div class="k">Điểm khớp ước tính</div>
+            <div class="big" id="emq-score">0.0 / 10</div>
+          </div>
+          <div class="gauge"><i id="emq-bar"></i></div>
+          <div class="out-row">
+            <span class="lbl">Xếp loại</span>
+            <span class="v" id="emq-band">Chưa chọn trường nào</span>
+          </div>
+          <div class="out-row last">
+            <span class="lbl">Thiếu nhiều điểm nhất</span>
+            <span class="v" id="emq-gap" style="font-size:.9rem; white-space:normal; text-align:right">—</span>
+          </div>
+          <p class="tiny">Đây là mô phỏng theo trọng số các trường mà Meta dùng để khớp, giúp bạn thấy nên bổ sung gì trước. Điểm chính thức vẫn lấy ở Trình quản lý sự kiện của Meta sau khi luồng chạy thật.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROCESS ==================== -->
+<section>
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Triển khai</p>
+      <h2>Năm bước, 5–8 ngày làm việc</h2>
+      <p class="lead">Chạy song song với pixel hiện tại trong suốt quá trình. Không có ngày nào bạn mất dữ liệu.</p>
+    </div>
+
+    <div class="steps rv">
+      <div class="step">
+        <span class="meta">Bước 1 · 1 ngày</span>
+        <h3>Khảo sát hiện trạng</h3>
+        <p>Kiểm tra pixel đang chạy, landing, nguồn đơn, hệ thống POS/CRM. Đo mức thất thoát thật bằng cách đối chiếu sự kiện pixel với đơn trong hệ thống của bạn.</p>
+      </div>
+      <div class="step">
+        <span class="meta">Bước 2 · 1–2 ngày</span>
+        <h3>Thiết kế sơ đồ sự kiện</h3>
+        <p>Chốt danh sách sự kiện cần gửi, khoá chống trùng, trường danh tính khả dụng, và sự kiện nào dùng để tối ưu chiến dịch. Bạn duyệt sơ đồ trước khi chúng tôi viết một dòng nào.</p>
+      </div>
+      <div class="step">
+        <span class="meta">Bước 3 · 2–3 ngày</span>
+        <h3>Dựng luồng n8n và gắn mã landing</h3>
+        <p>Dựng workflow, chuẩn hoá và hash dữ liệu, nối Meta CAPI (thêm TikTok/GA4 nếu có trong gói), gắn đoạn thu <span class="mono">fbc</span>/<span class="mono">fbp</span> vào landing, bật Sheet log.</p>
+      </div>
+      <div class="step">
+        <span class="meta">Bước 4 · 3–5 ngày</span>
+        <h3>Đối chứng và hiệu chỉnh</h3>
+        <p>Chạy song song, so ba nguồn: Ads Manager, Sheet log, đơn thật trong POS. Sửa chống trùng, bổ sung trường còn thiếu, kéo điểm khớp lên. Đây là bước phần lớn bên khác bỏ qua.</p>
+      </div>
+      <div class="step last">
+        <span class="meta">Bước 5 · 1 ngày</span>
+        <h3>Bàn giao</h3>
+        <p>Bàn giao sơ đồ luồng, tài liệu vận hành và quyền truy cập Sheet log. Từ đây luồng chạy nền, việc giám sát và xử lý sự cố thuộc phần duy trì hằng tháng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRICING ==================== -->
+<section id="goi">
+  <div class="wrap stack gap-4">
+    <div class="stack gap-2">
+      <p class="eyebrow">Gói dịch vụ</p>
+      <h2>Một lần dựng, một phí duy trì</h2>
+      <p class="lead">Phí setup trọn gói cho việc dựng đường ống. Sau đó trả duy trì theo lượng sự kiện chuyển đổi thực tế — shop nhỏ trả ít, shop lớn trả theo quy mô.</p>
+    </div>
+
+    <div class="pricing-grid rv">
+      <div class="plan lead-card">
+        <span class="pname">Phí setup · một lần</span>
+        <div class="price">5.000.000đ<small>hoặc miễn phí khi cam kết 6 tháng duy trì</small></div>
+        <ul>
+          <li>Khảo sát hiện trạng và đo mức thất thoát thật của bạn</li>
+          <li>Sơ đồ sự kiện, bạn duyệt trước khi chúng tôi dựng</li>
+          <li>Dựng luồng n8n: chuẩn hoá, hash SHA-256, chống trùng</li>
+          <li><b>Không giới hạn số landing.</b> Engine dùng chung, thêm trang mới chỉ là dán một khối cấu hình — không tính thêm phí</li>
+          <li>Google Sheet log toàn bộ sự kiện để bạn tự đối soát</li>
+          <li>Đối chứng 3–5 ngày với đơn thật trước khi bàn giao</li>
+        </ul>
+        <a class="btn" href="#lienhe">Đặt lịch khảo sát</a>
+      </div>
+
+      <div class="stack gap-3">
+        <div class="tool">
+          <div class="tool-head">
+            <span class="t">Phí duy trì hằng tháng</span>
+            <span class="t">Theo sự kiện chuyển đổi</span>
+          </div>
+          <div class="tiers">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Sự kiện chuyển đổi / tháng</th>
+                  <th scope="col">Phí duy trì</th>
+                </tr>
+              </thead>
+              <tbody id="tier-body">
+                <tr data-tier="0"><td>Đến 10.000</td><td class="good">2.000.000đ</td></tr>
+                <tr data-tier="1"><td>10.001 – 50.000</td><td class="good">3.500.000đ</td></tr>
+                <tr data-tier="2"><td>50.001 – 200.000</td><td class="good">6.000.000đ</td></tr>
+                <tr data-tier="3"><td>Trên 200.000</td><td class="good">Báo giá riêng</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tier-est">
+            <div class="field">
+              <label for="i-orders">Bạn có bao nhiêu lead hoặc đơn mỗi tháng?</label>
+              <input type="number" id="i-orders" value="1000" min="1" step="100">
+            </div>
+            <div class="est-out">
+              <div class="out-row">
+                <span class="lbl">Sự kiện chuyển đổi ước tính</span>
+                <span class="v" id="o-events">4.000</span>
+              </div>
+              <div class="out-row last">
+                <span class="lbl">Bậc phí của bạn</span>
+                <span class="v ok" id="o-tier">2.000.000đ / tháng</span>
+              </div>
+            </div>
+            <p class="tiny">Ước tính theo 4 sự kiện chuyển đổi mỗi lead: đăng ký, bắt đầu thanh toán, mua hàng, và trạng thái đơn từ hệ thống của bạn. Nối thêm sự kiện xác nhận và giao COD thì hệ số lên 5–6.</p>
+          </div>
+        </div>
+
+        <div class="rules">
+          <div class="rule">
+            <b>Chỉ đếm sự kiện chuyển đổi.</b>
+            <span>Lead, bắt đầu thanh toán, mua hàng, xác nhận đơn, giao COD. Xem trang và xem sản phẩm không tính — dù bạn bắn bao nhiêu.</span>
+          </div>
+          <div class="rule">
+            <b>Số liệu lấy từ chính Sheet log của bạn.</b>
+            <span>Bạn tự mở ra đếm được bất cứ lúc nào. Hoá đơn không dựa vào con số nào chỉ chúng tôi nhìn thấy.</span>
+          </div>
+          <div class="rule">
+            <b>Vượt bậc thì áp từ tháng sau.</b>
+            <span>Luồng không bao giờ bị ngắt giữa chừng vì lý do thanh toán. Dữ liệu đo lường đứt một ngày là hỏng cả tháng học của thuật toán.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="tiny">Phí duy trì đã gồm: hạ tầng n8n vận hành sẵn, giám sát luồng và cảnh báo khi đứt, xử lý sự cố, cập nhật khi Meta hoặc TikTok đổi phiên bản API, hai lần chỉnh sửa mỗi tháng, và thêm landing mới không giới hạn. Nhu cầu vượt phạm vi trên — nối thêm hệ thống, thị trường mới, máy chủ riêng — được báo giá sau khảo sát.</p>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section>
+  <div class="wrap stack gap-3">
+    <div class="stack gap-2">
+      <p class="eyebrow">Câu hỏi thường gặp</p>
+      <h2>Những gì khách hỏi trước khi ký</h2>
+    </div>
+
+    <div>
+      <details>
+        <summary>Có phải gỡ pixel hiện tại không?</summary>
+        <p>Không bắt buộc. Cấu hình chuẩn là chạy song song: pixel giữ vai trò phụ, CAPI là nguồn chính, và <span class="mono">event_id</span> khớp nhau để Meta gộp làm một. Với landing thuần COD, nhiều khách chọn chạy CAPI-only cho gọn — chúng tôi tư vấn theo từng trường hợp.</p>
+      </details>
+      <details>
+        <summary>Meta có phạt tài khoản vì gửi từ máy chủ không?</summary>
+        <p>Không. Conversions API là kênh chính thức của Meta và họ khuyến khích dùng. Rủi ro chỉ đến khi gửi dữ liệu sai chính sách — ví dụ gửi thông tin nhạy cảm hoặc dữ liệu chưa hash. Luồng của chúng tôi hash toàn bộ trước khi gửi.</p>
+      </details>
+      <details>
+        <summary>Dữ liệu khách hàng có bị lộ ra ngoài không?</summary>
+        <p>Dữ liệu gốc nằm trong máy chủ của bạn. n8n hash SHA-256 rồi mới gửi đi, Meta chỉ nhận chuỗi băm. Token và khoá lưu ở biến môi trường, không nằm trong luồng, không nằm trong log.</p>
+      </details>
+      <details>
+        <summary>Đội tôi không biết kỹ thuật thì có làm được không?</summary>
+        <p>Được, vì đội bạn không phải đụng vào kỹ thuật. Chúng tôi dựng, giám sát, sửa khi có sự cố và cập nhật khi Meta hay TikTok đổi phiên bản API — tất cả nằm trong phí duy trì. Việc duy nhất của bạn là mở Sheet log ra đối chiếu khi muốn kiểm tra số, và báo cho chúng tôi khi có landing mới.</p>
+      </details>
+      <details>
+        <summary>Bao lâu thì thấy hiệu quả trên chi phí quảng cáo?</summary>
+        <p>Sự kiện được ghi nhận nhiều hơn thì thấy ngay trong 24–48 giờ. Còn thuật toán học lại và giá mỗi đơn dịch chuyển thì cần 2–4 tuần với ngân sách đủ lớn. Chúng tôi đo bằng đơn thật trong POS, không chỉ nhìn số trong Ads Manager.</p>
+      </details>
+      <details>
+        <summary>Đang dùng LadiPage, Ladipage có làm được không?</summary>
+        <p>Được. LadiPage bắn dữ liệu form sang webhook n8n, luồng nhận và xử lý bình thường. Chúng tôi đã làm với LadiPage, WordPress/WooCommerce, Shopify và landing tự code.</p>
+      </details>
+      <details>
+        <summary>Nếu làm xong mà không cải thiện thì sao?</summary>
+        <p>Bước khảo sát sẽ đo mức thất thoát thật trước khi bạn quyết định. Nếu con số đó quá nhỏ để đáng đầu tư, chúng tôi nói thẳng và không nhận dự án. Sau bàn giao, nếu số sự kiện ghi nhận không tăng so với nền cũ, chúng tôi sửa miễn phí tới khi đạt.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER CTA ==================== -->
+<footer id="lienhe">
+  <div class="wrap stack gap-4">
+    <div class="foot-cta">
+      <div class="stack gap-2" style="max-width:52ch">
+        <p class="eyebrow">Bước tiếp theo</p>
+        <h2>Khảo sát 20 phút, có số thật trước khi quyết</h2>
+        <p class="lead">Gửi chúng tôi tên miền landing, ID pixel và số đơn tháng gần nhất. Bạn nhận lại bản ước tính mức thất thoát cùng sơ đồ sự kiện đề xuất — trước khi trả bất kỳ khoản nào.</p>
+      </div>
+      <div class="cta-row">
+        <a class="btn" href="#tinh">Đo thất thoát trước</a>
+        <a class="btn ghost" href="#goi">Xem lại gói dịch vụ</a>
+      </div>
+    </div>
+    <p class="tiny">Thay thông tin liên hệ, giá và tên thương hiệu của bạn trực tiếp trong file này trước khi gửi cho khách. Mọi con số ước tính trên trang đều là dải điển hình của ngành, không phải cam kết kết quả.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var vnd = function (n) { return Math.round(n).toLocaleString("vi-VN") + "đ"; };
+  var int = function (n) { return Math.round(n).toLocaleString("vi-VN"); };
+
+  /* ---------- hero meters ---------- */
+  function buildDots(el, lostCount) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < 100; i++) {
+      var d = document.createElement("i");
+      d.className = i >= 100 - lostCount ? "dot lost" : "dot";
+      frag.appendChild(d);
+    }
+    el.appendChild(frag);
+  }
+  buildDots(document.getElementById("dots-pixel"), 28);
+  buildDots(document.getElementById("dots-capi"), 0);
+
+  /* ---------- tool 1: leak calculator ---------- */
+  var iSpend = document.getElementById("i-spend");
+  var iLeads = document.getElementById("i-leads");
+  var iClose = document.getElementById("i-close");
+  var iAov = document.getElementById("i-aov");
+  var iLoss = document.getElementById("i-loss");
+
+  function calc() {
+    var spend = Math.max(0, Number(iSpend.value) || 0);
+    var leads = Math.max(1, Number(iLeads.value) || 1);
+    var close = Number(iClose.value) / 100;
+    var aov = Math.max(0, Number(iAov.value) || 0);
+    var loss = Number(iLoss.value) / 100;
+
+    var real = leads / (1 - loss);
+    var missed = real - leads;
+    var cpaShown = spend / leads;
+    var cpaReal = spend / real;
+    var hiddenRev = missed * close * aov;
+
+    document.getElementById("v-close").textContent = Math.round(close * 100) + "%";
+    document.getElementById("v-loss").textContent = Math.round(loss * 100) + "%";
+    document.getElementById("o-missed").textContent = int(missed) + " sự kiện";
+    document.getElementById("o-real").textContent = int(real);
+    document.getElementById("o-cpa-shown").textContent = vnd(cpaShown);
+    document.getElementById("o-cpa-real").textContent = vnd(cpaReal);
+    document.getElementById("o-rev").textContent = vnd(hiddenRev);
+    document.getElementById("o-year").textContent = vnd(spend * loss * 12);
+  }
+  [iSpend, iLeads, iClose, iAov, iLoss].forEach(function (el) {
+    el.addEventListener("input", calc);
+  });
+  calc();
+
+  /* ---------- tool 2: EMQ scorecard ---------- */
+  var FIELDS = [
+    { id: "em", label: "Email đã hash", w: 2.0, on: true },
+    { id: "ph", label: "Số điện thoại đã hash (E.164)", w: 2.0, on: true },
+    { id: "fbc", label: "fbc — mã click từ quảng cáo", w: 1.5, on: false },
+    { id: "fbp", label: "fbp — mã trình duyệt", w: 1.0, on: false },
+    { id: "extid", label: "external_id — mã khách của bạn", w: 1.0, on: false },
+    { id: "ipua", label: "IP + user-agent của khách", w: 0.9, on: false },
+    { id: "name", label: "Họ và tên đã hash", w: 0.6, on: true },
+    { id: "geo", label: "Tỉnh/thành, mã vùng, quốc gia", w: 0.6, on: false },
+    { id: "dob", label: "Ngày sinh hoặc giới tính", w: 0.3, on: false },
+    { id: "src", label: "event_source_url chính xác", w: 0.3, on: false },
+    { id: "dedup", label: "event_id chống trùng", w: 0.4, on: false },
+    { id: "time", label: "event_time trong vòng 1 giờ", w: 0.4, on: false }
+  ];
+  var MAX = FIELDS.reduce(function (s, f) { return s + f.w; }, 0);
+  var list = document.getElementById("emq-list");
+
+  FIELDS.forEach(function (f) {
+    var lab = document.createElement("label");
+    lab.className = "chk";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = f.on;
+    cb.dataset.id = f.id;
+    var txt = document.createElement("span");
+    txt.textContent = f.label;
+    var w = document.createElement("span");
+    w.className = "w";
+    w.textContent = f.w.toFixed(1);
+    lab.appendChild(cb);
+    lab.appendChild(txt);
+    lab.appendChild(w);
+    list.appendChild(lab);
+    cb.addEventListener("change", scoreEmq);
+  });
+
+  function scoreEmq() {
+    var sum = 0;
+    var missing = [];
+    FIELDS.forEach(function (f) {
+      var cb = list.querySelector('input[data-id="' + f.id + '"]');
+      if (cb.checked) { sum += f.w; } else { missing.push(f); }
+    });
+    var score = Math.min(10, (sum / MAX) * 10);
+    document.getElementById("emq-score").textContent = score.toFixed(1) + " / 10";
+    document.getElementById("emq-bar").style.width = (score * 10) + "%";
+
+    var band, color;
+    if (score >= 8) { band = "Rất tốt"; color = "var(--accent)"; }
+    else if (score >= 6.5) { band = "Tốt"; color = "var(--accent)"; }
+    else if (score >= 4.5) { band = "Trung bình"; color = "var(--ink)"; }
+    else if (score > 0) { band = "Yếu — cần bổ sung"; color = "var(--leak)"; }
+    else { band = "Chưa chọn trường nào"; color = "var(--leak)"; }
+    var bandEl = document.getElementById("emq-band");
+    bandEl.textContent = band;
+    bandEl.style.color = color;
+
+    missing.sort(function (a, b) { return b.w - a.w; });
+    var gap = missing.slice(0, 2).map(function (f) { return f.label; }).join(" · ");
+    document.getElementById("emq-gap").textContent = gap || "Không thiếu gì";
+  }
+  scoreEmq();
+
+  /* ---------- tier estimator ---------- */
+  var TIERS = [
+    { max: 10000, price: "2.000.000đ / tháng" },
+    { max: 50000, price: "3.500.000đ / tháng" },
+    { max: 200000, price: "6.000.000đ / tháng" },
+    { max: Infinity, price: "Báo giá riêng" }
+  ];
+  var EVENTS_PER_ORDER = 4;
+  var iOrders = document.getElementById("i-orders");
+  var tierRows = document.querySelectorAll("#tier-body tr");
+
+  function estimateTier() {
+    var orders = Math.max(0, Number(iOrders.value) || 0);
+    var events = orders * EVENTS_PER_ORDER;
+    var idx = 0;
+    for (var i = 0; i < TIERS.length; i++) {
+      if (events <= TIERS[i].max) { idx = i; break; }
+    }
+    document.getElementById("o-events").textContent = int(events);
+    document.getElementById("o-tier").textContent = TIERS[idx].price;
+    for (var j = 0; j < tierRows.length; j++) {
+      tierRows[j].classList.toggle("hit", j === idx);
+    }
+  }
+  iOrders.addEventListener("input", estimateTier);
+  estimateTier();
+
+  /* ---------- scroll reveal ---------- */
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var targets = document.querySelectorAll(".rv");
+  if (reduce || !("IntersectionObserver" in window)) {
+    targets.forEach(function (t) { t.classList.add("on"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -12% 0px" });
+    targets.forEach(function (t) { io.observe(t); });
+  }
+})();
+</script>
