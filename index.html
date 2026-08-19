@@ -550,7 +550,7 @@ footer{border-top:1px solid var(--line); padding:var(--s5) 0 var(--s4)}
     <div class="stack gap-2">
       <p class="eyebrow">Lợi ích</p>
       <h2>Bạn được gì khi bỏ pixel-only</h2>
-      <p class="lead">Mười một thứ thay đổi ngay trong tháng đầu — xếp theo mức tác động tới tiền quảng cáo.</p>
+      <p class="lead">Mười ba thứ thay đổi ngay trong tháng đầu — xếp theo mức tác động tới tiền quảng cáo.</p>
     </div>
 
     <div class="benefits rv">
@@ -592,40 +592,54 @@ footer{border-top:1px solid var(--line); padding:var(--s5) 0 var(--s4)}
       <div class="benefit">
         <span class="k">06</span>
         <div>
+          <h3>Giữ được sự kiện khách điền dở</h3>
+          <p>Khách điền xong thông tin rồi thoát, không bấm mua — đó là <span class="mono">InitiateCheckout</span>, tín hiệu ý định mua mạnh nhất chỉ sau đơn thật. Pixel hay đánh rơi đúng lúc này vì khách đóng tab. Giữ được sự kiện đó, bạn có thêm dữ liệu để tối ưu khi đơn thật còn ít, và dựng được tệp chạy lại nhắm đúng nhóm <b>đã điền mà chưa mua</b>.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">07</span>
+        <div>
           <h3>Điểm khớp sự kiện cao hơn hẳn</h3>
           <p>Gửi đủ email, số điện thoại, tên, tỉnh/thành, mã khách, <span class="mono">fbc</span>/<span class="mono">fbp</span>, IP và user-agent. EMQ 4–5 lên 7–9 là mức thường thấy, tức Meta nhận diện được nhiều người hơn.</p>
         </div>
       </div>
       <div class="benefit">
-        <span class="k">07</span>
+        <span class="k">08</span>
         <div>
           <h3>Không đếm đôi</h3>
           <p><span class="mono">event_id</span> đặt đúng cách để Meta gộp bản trình duyệt và bản máy chủ thành một. Đây là chỗ đa số bên tự làm bị sai và báo cáo phồng lên.</p>
         </div>
       </div>
       <div class="benefit">
-        <span class="k">08</span>
+        <span class="k">09</span>
         <div>
           <h3>Một luồng, nhiều nền tảng</h3>
           <p>Đã chuẩn hoá sự kiện một lần thì bắn sang TikTok, GA4, Google Ads chỉ là thêm một nhánh. Không phải cài lại từ đầu cho từng kênh.</p>
         </div>
       </div>
       <div class="benefit">
-        <span class="k">09</span>
+        <span class="k">10</span>
+        <div>
+          <h3>Nuôi nhiều pixel cùng lúc, dữ liệu như nhau</h3>
+          <p>Cùng một luồng bắn song song sang nhiều pixel, mỗi pixel nhận <b>đúng bộ sự kiện giống hệt nhau</b>. Pixel dự phòng được nuôi từ ngày đầu chứ không nằm không. Pixel chính bị khoá hay tụt hiệu quả thì đổi sang cái khác chạy được ngay, không phải nuôi lại từ đầu và không mất tuần học máy.</p>
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="k">11</span>
         <div>
           <h3>Đối soát được từng sự kiện</h3>
           <p>Sheet log cho phép so số Ads Manager với đơn thật theo ngày, theo chiến dịch, theo nhân sự. Lệch chỗ nào thấy chỗ đó.</p>
         </div>
       </div>
       <div class="benefit">
-        <span class="k">10</span>
+        <span class="k">12</span>
         <div>
           <h3>Gửi lại được khi lỗi</h3>
           <p>Meta timeout hay token hết hạn thì n8n giữ lại và thử lại, chứ không mất trắng như pixel. Có hàng đợi, có nhật ký lỗi.</p>
         </div>
       </div>
       <div class="benefit">
-        <span class="k">11</span>
+        <span class="k">13</span>
         <div>
           <h3>Không bị khoá chân</h3>
           <p>Không tính phí theo lượt sự kiện như các dịch vụ server-side đóng gói. Luồng vẫn là tài sản của bạn — muốn tách sang máy chủ riêng lúc nào cũng được, chúng tôi bàn giao nguyên trạng, không giữ lại gì.</p>
